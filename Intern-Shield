@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>InternShield</title>
+
+<style>
+body {
+  margin:0;
+  font-family: Arial;
+}
+
+/* LOGIN BACKGROUND (CYBERSECURITY) */
+.auth-bg {
+  background: url('https://images.unsplash.com/photo-1563986768609-322da13575f3') no-repeat center center fixed;
+  background-size: cover;
+  color:white;
+}
+
+/* CHAT BACKGROUND (AI/TECH) */
+.chat-bg {
+  background: url('https://images.unsplash.com/photo-1555949963-aa79dcee981c') no-repeat center center fixed;
+  background-size: cover;
+  color:white;
+}
+
+/* DARK OVERLAY */
+.overlay {
+  background: rgba(0,0,0,0.65);
+  position:fixed;
+  width:100%;
+  height:100%;
+  top:0;
+}
+
+/* LOGIN BOX */
+.container {
+  text-align:center;
+  margin-top:120px;
+  position:relative;
+  z-index:2;
+}
+
+input {
+  padding:10px;
+  margin:8px;
+  border-radius:8px;
+  border:none;
+}
+
+button {
+  padding:10px 20px;
+  margin:8px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* CHAT CONTAINER (GLASS EFFECT) */
+.chat-container {
+  display:none;
+  max-width:800px;
+  margin:40px auto;
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(12px);
+  border-radius:12px;
+  padding:20px;
+  position:relative;
+  z-index:2;
+  border:1px solid rgba(255,255,255,0.1);
+}
+
+/* MESSAGES */
+.messages {
+  height:400px;
+  overflow-y:auto;
+  padding:10px;
+}
+
+/* USER MESSAGE */
+.user {
+  background:#3b82f6;
+  padding:10px;
+  border-radius:12px;
+  margin:5px;
+  text-align:right;
+}
+
+/* BOT MESSAGE */
+.bot {
+  background:#64748b;
+  padding:10px;
+  border-radius:12px;
+  margin:5px;
+}
+
+/* INPUT BOX */
+.input-box {
+  display:flex;
+}
+
+.input-box input {
+  flex:1;
+}
+</style>
+</head>
+
+<body class="auth-bg">
+
+<div class="overlay"></div>
+
+<!-- LOGIN / SIGNUP -->
+<div class="container" id="auth">
+  <h1>InternShield 🛡️</h1>
+  <p>Login / Signup</p>
+
+  <input id="username" placeholder="Username"><br>
+  <input id="password" type="password" placeholder="Password"><br>
+
+  <button onclick="signup()">Sign Up</button>
+  <button onclick="login()">Login</button>
+</div>
+
+<!-- CHAT -->
+<div class="chat-container" id="chat">
+  <div class="messages" id="messages"></div>
+
+  <div class="input-box">
+    <input id="inputText" placeholder="Paste internship email...">
+    <button onclick="sendMessage()">Send 🚀</button>
+  </div>
+</div>
+
+<script>
+// SIGNUP WITH VALIDATION
+function signup(){
+  let u = username.value.trim();
+  let p = password.value.trim();
+
+  if(u.length < 4) return alert("❌ Username must be at least 4 characters");
+  if(!/^[a-zA-Z0-9_]+$/.test(u)) return alert("❌ Only letters, numbers, underscore allowed");
+
+  if(p.length < 6) return alert("❌ Password must be at least 6 characters");
+  if(!/[A-Z]/.test(p)) return alert("❌ Must contain uppercase letter");
+  if(!/[0-9]/.test(p)) return alert("❌ Must contain number");
+
+  localStorage.setItem(u, p);
+  alert("✨ Signup successful!");
+}
+
+// LOGIN
+function login(){
+  let u = username.value;
+  let p = password.value;
+
+  if(localStorage.getItem(u) === p){
+    auth.style.display = "none";
+    chat.style.display = "block";
+
+    // SWITCH BACKGROUND
+    document.body.classList.remove("auth-bg");
+    document.body.classList.add("chat-bg");
+
+    addMessage("Hi " + u + " 👋 Paste your email to check!", "bot");
+  } else {
+    alert("❌ Invalid login");
+  }
+}
+
+// SEND MESSAGE
+function sendMessage(){
+  let text = inputText.value;
+  if(!text.trim()) return;
+
+  addMessage(text, "user");
+  inputText.value = "";
+
+  let reply = analyze(text);
+  setTimeout(() => addMessage(reply, "bot"), 600);
+}
+
+// ADD MESSAGE
+function addMessage(text, type){
+  let div = document.createElement("div");
+  div.className = type;
+  div.innerText = text;
+
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+// ANALYSIS (SCAM DETECTION)
+function analyze(text){
+  let t = text.toLowerCase();
+  let score = 0;
+
+  if(t.includes("pay") || t.includes("fee") || t.includes("registration")) score++;
+  if(t.includes("urgent") || t.includes("hurry") || t.includes("don't miss")) score++;
+  if(t.includes("no interview") || t.includes("whatsapp")) score++;
+  if(t.includes("send 50000") || t.includes("receive 100000") || t.includes("instant")) score++;
+  if(t.includes("guaranteed job") || t.includes("100% placement") || t.includes("easy money")) score++;
+
+  if(score >= 3)
+    return "🚨 FAKE Internship detected! High-risk scam signals ❗";
+  if(score == 2)
+    return "⚠️ Suspicious - verify on official company website";
+  
+  return "✅ Looks relatively Genuine 😊 (Still verify once)";
+}
+</script>
+
+</body>
+</html>
