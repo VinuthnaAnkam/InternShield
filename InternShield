@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>InternShield</title>
+
+<style>
+body { margin:0; font-family: Arial; }
+
+.auth-bg {
+  background: url('https://images.unsplash.com/photo-1563986768609-322da13575f3') no-repeat center center fixed;
+  background-size: cover; color:white;
+}
+
+.chat-bg {
+  background: url('https://images.unsplash.com/photo-1555949963-aa79dcee981c') no-repeat center center fixed;
+  background-size: cover; color:white;
+}
+
+.overlay {
+  background: rgba(0,0,0,0.65);
+  position:fixed; width:100%; height:100%; top:0;
+}
+
+.container { text-align:center; margin-top:120px; position:relative; z-index:2; }
+input { padding:10px; margin:8px; border-radius:8px; border:none; }
+button { padding:10px 20px; margin:8px; border:none; border-radius:8px; cursor:pointer; }
+
+.chat-container {
+  display:none;
+  max-width:800px;
+  margin:40px auto;
+  background: rgba(17,24,39,0.7);
+  backdrop-filter: blur(12px);
+  border-radius:12px;
+  padding:20px;
+  position:relative;
+  z-index:2;
+}
+
+.messages { height:400px; overflow-y:auto; padding:10px; }
+
+.user, .bot {
+  padding:10px; border-radius:12px; margin:5px; max-width:70%;
+}
+
+.user { background:#3b82f6; margin-left:auto; text-align:right; }
+.bot { background:#64748b; }
+
+.fake { background:#ef4444 !important; }
+.suspicious { background:#f59e0b !important; }
+.real { background:#22c55e !important; }
+
+.timestamp { font-size:10px; opacity:0.7; }
+
+.typing { font-style:italic; opacity:0.7; }
+
+.input-box { display:flex; }
+.input-box input { flex:1; }
+</style>
+</head>
+
+<body class="auth-bg">
+<div class="overlay"></div>
+
+<div class="container" id="auth">
+  <h1>InternShield 🛡️</h1>
+  <input id="username" placeholder="Username"><br>
+  <input id="password" type="password" placeholder="Password"><br>
+  <button onclick="signup()">Sign Up</button>
+  <button onclick="login()">Login</button>
+</div>
+
+<div class="chat-container" id="chat">
+  <div class="messages" id="messages"></div>
+  <div class="input-box">
+    <input id="inputText" placeholder="Paste internship email...">
+    <button onclick="sendMessage()">Send 🚀</button>
+  </div>
+</div>
+
+<script>
+// AUTH
+function signup(){
+  let u=username.value.trim(), p=password.value.trim();
+  if(u.length<4) return alert("Username >=4 chars");
+  if(p.length<6) return alert("Password >=6 chars");
+  localStorage.setItem(u,p);
+  alert("Signup success");
+}
+
+function login(){
+  let u=username.value, p=password.value;
+  if(localStorage.getItem(u)===p){
+    auth.style.display="none";
+    chat.style.display="block";
+    document.body.classList.replace("auth-bg","chat-bg");
+    loadHistory();
+    addMessage("Hi "+u+" 👋", "bot");
+  } else alert("Invalid login");
+}
+
+// CHAT
+function sendMessage(){
+  let text=inputText.value;
+  if(!text.trim()) return;
+
+  addMessage(text,"user");
+  inputText.value="";
+
+  let typingDiv = addMessage("InternShield AI is analyzing...","bot","typing");
+
+  setTimeout(()=>{
+    typingDiv.remove();
+    let {reply,type}=analyze(text);
+    addMessage(reply,"bot",type);
+    saveHistory();
+  },1000);
+}
+
+function addMessage(text,type,extraClass=""){
+  let div=document.createElement("div");
+  div.className=type+" "+extraClass;
+
+  let time=new Date().toLocaleTimeString();
+  div.innerHTML = text + `<div class='timestamp'>${time}</div>`;
+
+  messages.appendChild(div);
+  messages.scrollTop=messages.scrollHeight;
+  return div;
+}
+
+// ANALYSIS + CONFIDENCE
+function analyze(text){
+  let t=text.toLowerCase();
+  let score=0;
+
+  if(t.includes("pay")||t.includes("fee")) score++;
+  if(t.includes("urgent")||t.includes("hurry")) score++;
+  if(t.includes("no interview")||t.includes("whatsapp")) score++;
+  if(t.includes("send 50000")||t.includes("receive 100000")) score++;
+
+  let confidence = Math.min(score*25,100);
+
+  if(score>=3) return {reply:`🚨 FAKE (${confidence}%)`, type:"fake"};
+  if(score==2) return {reply:`⚠️ SUSPICIOUS (${confidence}%)`, type:"suspicious"};
+  return {reply:`✅ REAL (${confidence}%)`, type:"real"};
+}
+
+// HISTORY
+function saveHistory(){
+  localStorage.setItem("chatHistory", messages.innerHTML);
+}
+
+function loadHistory(){
+  let data=localStorage.getItem("chatHistory");
+  if(data) messages.innerHTML=data;
+}
+</script>
+
+</body>
+</html>
