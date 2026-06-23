@@ -1,0 +1,51 @@
+import java.util.*;
+
+public class Main {
+
+    public static void findTwoRepeats(int[] arr, int n) {
+
+        int xor = 0;
+
+        // XOR all array elements
+        for (int x : arr) {
+            xor ^= x;
+        }
+
+        // XOR 1 to n
+        for (int i = 1; i <= n; i++) {
+            xor ^= i;
+        }
+
+        // xor = a ^ b (two repeated numbers)
+
+        // find rightmost set bit
+        int setBit = xor & -xor;
+
+        int x = 0, y = 0;
+
+        // divide into 2 groups
+        for (int val : arr) {
+            if ((val & setBit) != 0)
+                x ^= val;
+            else
+                y ^= val;
+        }
+
+        for (int i = 1; i <= n; i++) {
+            if ((i & setBit) != 0)
+                x ^= i;
+            else
+                y ^= i;
+        }
+
+        System.out.println("Repeated numbers: " + x + " " + y);
+    }
+
+    public static void main(String[] args) {
+
+        int[] arr = {1, 2, 3, 4, 2, 5, 3};
+        int n = 5;
+
+        findTwoRepeats(arr, n);
+    }
+}
