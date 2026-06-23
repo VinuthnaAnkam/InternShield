@@ -1,0 +1,40 @@
+import java.util.*;
+
+public class Main {
+
+    public static int[] findMissingAndRepeating(int[] arr) {
+
+        long n = arr.length;
+
+        long sumN = n * (n + 1) / 2;
+        long sumSqN = n * (n + 1) * (2 * n + 1) / 6;
+
+        long sum = 0;
+        long sumSq = 0;
+
+        for (int x : arr) {
+            sum += x;
+            sumSq += (long) x * x;
+        }
+
+        long diff = sum - sumN;           // R - M
+        long diffSq = sumSq - sumSqN;     // R^2 - M^2
+
+        long sumRM = diffSq / diff;       // R + M
+
+        long repeating = (diff + sumRM) / 2;
+        long missing = repeating - diff;
+
+        return new int[]{(int) repeating, (int) missing};
+    }
+
+    public static void main(String[] args) {
+
+        int[] arr = {1, 3, 3};
+
+        int[] ans = findMissingAndRepeating(arr);
+
+        System.out.println("Repeating: " + ans[0]);
+        System.out.println("Missing: " + ans[1]);
+    }
+}
